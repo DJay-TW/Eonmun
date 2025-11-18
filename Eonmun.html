@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hangul 字母練習器 - 常用音節版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #05070a;
+      --bg-soft: #10131a;
+      --card: #161a22;
+      --card-hover: #1f2430;
+      --accent: #3da6ff;
+      --accent-soft: rgba(61, 166, 255, 0.18);
+      --accent-active: #ff6b9d;
+      --border-subtle: #242a36;
+      --text-main: #f5f7ff;
+      --text-sub: #a5adc0;
+      --text-dim: #6f778a;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.45);
+      --gradient-bg: radial-gradient(circle at top, #141827 0, #05070a 52%, #000 100%);
+      --panel-gradient: radial-gradient(circle at top left, rgba(61,166,255,0.16), transparent 55%);
+    }
+
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --bg-soft: #f8f9fa;
+      --card: #ffffff;
+      --card-hover: #f0f4f8;
+      --accent: #0066cc;
+      --accent-soft: rgba(0, 102, 204, 0.08);
+      --accent-active: #e91e63;
+      --border-subtle: #e1e4e8;
+      --text-main: #1a1a1a;
+      --text-sub: #4a5568;
+      --text-dim: #718096;
+      --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --panel-gradient: linear-gradient(135deg, rgba(102,126,234,0.05), transparent);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--gradient-bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px 32px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--bg);
+      border-radius: 32px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-soft);
+      padding: 32px;
+      backdrop-filter: blur(26px);
+      transition: all 0.3s ease;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--accent), #667eea);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #667eea);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 12px var(--accent-soft);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-sub);
+      font-weight: 400;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-toggle {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--card);
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .theme-toggle:hover {
+      background: var(--card-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .theme-toggle:active {
+      transform: translateY(0);
+    }
+
+    .status-pill {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--card);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #30d158;
+      box-shadow: 0 0 10px rgba(48,209,88,0.7);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .status-pill span.strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 24px;
+    }
+    
+    .panels-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 24px;
+    }
+
+    @media (max-width: 820px) {
+      .app-shell {
+        border-radius: 24px;
+        padding: 20px;
+      }
+      .panels-row {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .panel {
+      background: var(--panel-gradient), var(--bg-soft);
+      border-radius: 24px;
+      border: 1px solid var(--border-subtle);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .panel:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .panel-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .panel-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+    }
+
+    .panel-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    .panel-badge {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .letters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .letter-card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 2px solid var(--border-subtle);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .letter-card:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .letter-card:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+
+    .letter-card.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-active);
+      border-width: 3px;
+      box-shadow: 0 0 20px var(--accent-active);
+      animation: activeGlow 1.5s ease-in-out infinite;
+    }
+
+    @keyframes activeGlow {
+      0%, 100% { box-shadow: 0 0 20px var(--accent-active); }
+      50% { box-shadow: 0 0 30px var(--accent-active); }
+    }
+
+    .letter-card.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .letter-symbol {
+      font-size: 2.5rem;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--text-main);
+    }
+
+    .letter-combined {
+      font-size: 1.5rem;
+      color: var(--accent);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .letter-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .roman {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .tag {
+      font-size: 0.65rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .control-button {
+      flex: 1;
+      min-width: 140px;
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: 2px solid var(--border-subtle);
+      background: var(--card);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .control-button:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+
+    .control-button:active {
+      transform: translateY(0);
+    }
+
+    .control-button .icon {
+      font-size: 1.2rem;
+    }
+
+    .hint {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .hint-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    footer {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    footer strong {
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(20px);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #30d158, #34c759);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    #toastMsg {
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="title-block">
+        <h1>
+          <div class="logo-icon">한</div>
+          Hangul 字母練習器
+        </h1>
+        <div class="subtitle">過濾罕見組合,只顯示現代韓文常用的音節</div>
+      </div>
+
+      <div class="header-controls">
+        <div class="status-pill" id="voiceStatus">
+          <div class="status-dot"></div>
+          <span>語音:</span>
+          <span class="strong">載入中…</span>
+        </div>
+
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換主題">
+          <span id="themeIcon">☀️</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- 第一步:選擇初聲(子音) -->
+      <section class="panel" aria-label="Hangul initial consonants">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <div class="panel-title">① 初聲 Initial Consonants (자음)</div>
+            <div class="panel-subtitle">
+              <span id="consonantSubtitle">請選擇一個子音作為開頭</span>
+            </div>
+          </div>
+          <div class="panel-badge">ㄱ · ㄴ · ㄷ…</div>
+        </div>
+
+        <div class="letters-grid" id="consonantGrid">
+          <!-- 動態插入 -->
+        </div>
+
+        <div class="hint">
+          <div class="hint-icon">✍️</div>
+          <span><strong>步驟1:</strong> 韓文書寫從子音開始!點擊任一子音卡片鎖定,然後往下選擇母音。</span>
+        </div>
+
+        <div class="controls-row">
+          <button class="control-button" id="clearConsonantBtn" type="button">
+            <span class="icon">🔄</span>
+            清除子音鎖定
+          </button>
+          <button class="control-button" id="testVoiceBtn" type="button">
+            <span class="icon">🔊</span>
+            測試發音「가나다…」
+          </button>
+        </div>
+      </section>
+
+      <!-- 第二步:選擇中聲(母音) -->
+      <section class="panel" aria-label="Hangul vowels">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <div class="panel-title">② 中聲 Vowels (모음)</div>
+            <div class="panel-subtitle">
+              <span id="vowelSubtitle">請先選擇初聲子音</span>
+            </div>
+          </div>
+          <div class="panel-badge">ㅏ · ㅓ · ㅗ…</div>
+        </div>
+
+        <div class="letters-grid" id="vowelGrid">
+          <!-- 動態插入 -->
+        </div>
+
+        <div class="hint">
+          <div class="hint-icon">💡</div>
+          <span><strong>步驟2:</strong> 灰色的母音表示與所選子音無法組合成真實韓文音節。只顯示可用的組合。</span>
+        </div>
+
+        <div class="controls-row">
+          <button class="control-button" id="clearVowelBtn" type="button">
+            <span class="icon">🔄</span>
+            清除母音鎖定
+          </button>
+        </div>
+      </section>
+
+      <!-- 第三步:選擇終聲 -->
+      <section class="panel" aria-label="Hangul final consonants">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <div class="panel-title">③ 終聲 Final Consonants (받침)</div>
+            <div class="panel-subtitle">
+              <span id="finalSubtitle">請先選擇初聲和中聲</span>
+            </div>
+          </div>
+          <div class="panel-badge">받침</div>
+        </div>
+
+        <div class="letters-grid" id="finalGrid">
+          <!-- 動態插入 -->
+        </div>
+
+        <div class="hint">
+          <div class="hint-icon">🎯</div>
+          <span><strong>步驟3:</strong> 系統過濾掉罕見的複合終聲組合。例如:複母音(ㅢ、ㅚ等)很少搭配複雜終聲。</span>
+        </div>
+
+        <div class="controls-row">
+          <button class="control-button" id="clearFinalBtn" type="button">
+            <span class="icon">🔄</span>
+            清除終聲鎖定
+          </button>
+          <button class="control-button" id="clearAllBtn" type="button">
+            <span class="icon">✨</span>
+            全部重置
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>提示:建議在 Chrome 使用,並確保有安裝韓文語音(ko-KR)。</span>
+      <span>設計重點:<strong>過濾罕見音節</strong> - 自動隱藏現代韓文中極少使用的複合終聲組合,讓學習更專注於實用內容。</span>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">
+    <div class="toast-icon">✓</div>
+    <div id="toastMsg">訊息</div>
+  </div>
+
+  <script>
+    // ====== 主題切換 ======
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+      showToast(`已切換至${newTheme === 'dark' ? '深色' : '淺色'}模式`);
+    });
+
+    function updateThemeIcon(theme) {
+      themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // ====== 資料定義 ======
+    const vowels = [
+      // 基本母音
+      { symbol: "ㅏ", display: "ㅏ", speak: "아", roman: "a", group: "Basic", unicode: 0x1161 },
+      { symbol: "ㅑ", display: "ㅑ", speak: "야", roman: "ya", group: "Basic", unicode: 0x1163 },
+      { symbol: "ㅓ", display: "ㅓ", speak: "어", roman: "eo", group: "Basic", unicode: 0x1165 },
+      { symbol: "ㅕ", display: "ㅕ", speak: "여", roman: "yeo", group: "Basic", unicode: 0x1167 },
+      { symbol: "ㅗ", display: "ㅗ", speak: "오", roman: "o", group: "Basic", unicode: 0x1169 },
+      { symbol: "ㅛ", display: "ㅛ", speak: "요", roman: "yo", group: "Basic", unicode: 0x116D },
+      { symbol: "ㅜ", display: "ㅜ", speak: "우", roman: "u", group: "Basic", unicode: 0x116E },
+      { symbol: "ㅠ", display: "ㅠ", speak: "유", roman: "yu", group: "Basic", unicode: 0x1172 },
+      { symbol: "ㅡ", display: "ㅡ", speak: "으", roman: "eu", group: "Basic", unicode: 0x1173 },
+      { symbol: "ㅣ", display: "ㅣ", speak: "이", roman: "i", group: "Basic", unicode: 0x1175 },
+
+      // 複合母音
+      { symbol: "ㅐ", display: "ㅐ", speak: "애", roman: "ae", group: "Compound", unicode: 0x1162 },
+      { symbol: "ㅒ", display: "ㅒ", speak: "얘", roman: "yae", group: "Compound", unicode: 0x1164 },
+      { symbol: "ㅔ", display: "ㅔ", speak: "에", roman: "e", group: "Compound", unicode: 0x1166 },
+      { symbol: "ㅖ", display: "ㅖ", speak: "예", roman: "ye", group: "Compound", unicode: 0x1168 },
+      { symbol: "ㅘ", display: "ㅘ", speak: "와", roman: "wa", group: "Compound", unicode: 0x116A },
+      { symbol: "ㅙ", display: "ㅙ", speak: "왜", roman: "wae", group: "Compound", unicode: 0x116B },
+      { symbol: "ㅚ", display: "ㅚ", speak: "외", roman: "oe", group: "Compound", unicode: 0x116C },
+      { symbol: "ㅝ", display: "ㅝ", speak: "워", roman: "wo", group: "Compound", unicode: 0x116F },
+      { symbol: "ㅞ", display: "ㅞ", speak: "웨", roman: "we", group: "Compound", unicode: 0x1170 },
+      { symbol: "ㅟ", display: "ㅟ", speak: "위", roman: "wi", group: "Compound", unicode: 0x1171 },
+      { symbol: "ㅢ", display: "ㅢ", speak: "의", roman: "ui", group: "Compound", unicode: 0x1174 }
+    ];
+
+    const consonants = [
+      // 基本子音
+      { symbol: "ㄱ", speak: "가", roman: "g/k", type: "Basic", unicode: 0x1100 },
+      { symbol: "ㄴ", speak: "나", roman: "n", type: "Basic", unicode: 0x1102 },
+      { symbol: "ㄷ", speak: "다", roman: "d/t", type: "Basic", unicode: 0x1103 },
+      { symbol: "ㄹ", speak: "라", roman: "r/l", type: "Basic", unicode: 0x1105 },
+      { symbol: "ㅁ", speak: "마", roman: "m", type: "Basic", unicode: 0x1106 },
+      { symbol: "ㅂ", speak: "바", roman: "b/p", type: "Basic", unicode: 0x1107 },
+      { symbol: "ㅅ", speak: "사", roman: "s", type: "Basic", unicode: 0x1109 },
+      { symbol: "ㅇ", speak: "아", roman: "ng / silent", type: "Basic", unicode: 0x110B },
+      { symbol: "ㅈ", speak: "자", roman: "j", type: "Basic", unicode: 0x110C },
+      { symbol: "ㅊ", speak: "차", roman: "ch", type: "Basic", unicode: 0x110E },
+      { symbol: "ㅋ", speak: "카", roman: "k", type: "Basic", unicode: 0x110F },
+      { symbol: "ㅌ", speak: "타", roman: "t", type: "Basic", unicode: 0x1110 },
+      { symbol: "ㅍ", speak: "파", roman: "p", type: "Basic", unicode: 0x1111 },
+      { symbol: "ㅎ", speak: "하", roman: "h", type: "Basic", unicode: 0x1112 },
+
+      // 緊音
+      { symbol: "ㄲ", speak: "까", roman: "kk", type: "Tense", unicode: 0x1101 },
+      { symbol: "ㄸ", speak: "따", roman: "tt", type: "Tense", unicode: 0x1104 },
+      { symbol: "ㅃ", speak: "빠", roman: "pp", type: "Tense", unicode: 0x1108 },
+      { symbol: "ㅆ", speak: "싸", roman: "ss", type: "Tense", unicode: 0x110A },
+      { symbol: "ㅉ", speak: "짜", roman: "jj", type: "Tense", unicode: 0x110D }
+    ];
+
+    // 終聲 (받침) - 27個終聲 + 無終聲選項
+    const finals = [
+      { symbol: "×", speak: "", roman: "none", type: "None", finalIndex: 0, display: "無" },
+      { symbol: "ㄱ", speak: "ㄱ", roman: "k", type: "Basic", finalIndex: 1 },
+      { symbol: "ㄲ", speak: "ㄲ", roman: "kk", type: "Double", finalIndex: 2 },
+      { symbol: "ㄳ", speak: "ㄳ", roman: "ks", type: "Complex", finalIndex: 3 },
+      { symbol: "ㄴ", speak: "ㄴ", roman: "n", type: "Basic", finalIndex: 4 },
+      { symbol: "ㄵ", speak: "ㄵ", roman: "nj", type: "Complex", finalIndex: 5 },
+      { symbol: "ㄶ", speak: "ㄶ", roman: "nh", type: "Complex", finalIndex: 6 },
+      { symbol: "ㄷ", speak: "ㄷ", roman: "t", type: "Basic", finalIndex: 7 },
+      { symbol: "ㄹ", speak: "ㄹ", roman: "l", type: "Basic", finalIndex: 8 },
+      { symbol: "ㄺ", speak: "ㄺ", roman: "lg", type: "Complex", finalIndex: 9 },
+      { symbol: "ㄻ", speak: "ㄻ", roman: "lm", type: "Complex", finalIndex: 10 },
+      { symbol: "ㄼ", speak: "ㄼ", roman: "lb", type: "Complex", finalIndex: 11 },
+      { symbol: "ㄽ", speak: "ㄽ", roman: "ls", type: "Complex", finalIndex: 12 },
+      { symbol: "ㄾ", speak: "ㄾ", roman: "lt", type: "Complex", finalIndex: 13 },
+      { symbol: "ㄿ", speak: "ㄿ", roman: "lp", type: "Complex", finalIndex: 14 },
+      { symbol: "ㅀ", speak: "ㅀ", roman: "lh", type: "Complex", finalIndex: 15 },
+      { symbol: "ㅁ", speak: "ㅁ", roman: "m", type: "Basic", finalIndex: 16 },
+      { symbol: "ㅂ", speak: "ㅂ", roman: "p", type: "Basic", finalIndex: 17 },
+      { symbol: "ㅄ", speak: "ㅄ", roman: "ps", type: "Complex", finalIndex: 18 },
+      { symbol: "ㅅ", speak: "ㅅ", roman: "s", type: "Basic", finalIndex: 19 },
+      { symbol: "ㅆ", speak: "ㅆ", roman: "ss", type: "Double", finalIndex: 20 },
+      { symbol: "ㅇ", speak: "ㅇ", roman: "ng", type: "Basic", finalIndex: 21 },
+      { symbol: "ㅈ", speak: "ㅈ", roman: "j", type: "Basic", finalIndex: 22 },
+      { symbol: "ㅊ", speak: "ㅊ", roman: "ch", type: "Basic", finalIndex: 23 },
+      { symbol: "ㅋ", speak: "ㅋ", roman: "k", type: "Basic", finalIndex: 24 },
+      { symbol: "ㅌ", speak: "ㅌ", roman: "t", type: "Basic", finalIndex: 25 },
+      { symbol: "ㅍ", speak: "ㅍ", roman: "p", type: "Basic", finalIndex: 26 },
+      { symbol: "ㅎ", speak: "ㅎ", roman: "h", type: "Basic", finalIndex: 27 }
+    ];
+
+    // ====== 韓文組合函數 ======
+    function composeHangul(consonant, vowel, final = null) {
+      // 韓文音節組合公式: 0xAC00 + (初聲 * 588) + (中聲 * 28) + (終聲)
+      
+      const consonantIndex = consonant.unicode - 0x1100;
+      const vowelIndex = vowel.unicode - 0x1161;
+      const finalIndex = final ? final.finalIndex : 0; // 無終聲時為 0
+      
+      // 計算組合字符
+      const syllable = 0xAC00 + (consonantIndex * 588) + (vowelIndex * 28) + finalIndex;
+      
+      return String.fromCharCode(syllable);
+    }
+
+    // ====== 常用韓文音節驗證 ======
+    // 建立常用終聲的映射表
+    // 基於現代韓文實際使用情況,過濾掉極少使用的複合終聲組合
+    const commonFinalsByVowel = {
+      // 對於大部分母音,這些終聲是常用的
+      'common': [0, 1, 4, 7, 8, 16, 17, 19, 21, 22, 23, 24, 25, 26, 27], 
+      // finalIndex: 無, ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅅ, ㅇ, ㅈ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ
+      
+      // 某些母音組合很少使用終聲
+      'rare': [0], // 只有無終聲
+    };
+
+    // 定義哪些母音組合較少使用終聲
+    const rareVowelSymbols = ['ㅒ', 'ㅖ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅢ'];
+
+    // 檢查組合是否為常用的韓文音節
+    function isCommonHangulSyllable(consonant, vowel, final = null) {
+      const syllableCode = composeHangul(consonant, vowel, final).charCodeAt(0);
+      
+      // 首先檢查是否在韓文音節區塊範圍內
+      if (syllableCode < 0xAC00 || syllableCode > 0xD7A3) {
+        return false;
+      }
+
+      const finalIndex = final ? final.finalIndex : 0;
+      
+      // 檢查是否為罕見的母音
+      const isRareVowel = rareVowelSymbols.includes(vowel.symbol);
+      
+      if (isRareVowel) {
+        // 罕見母音:只允許無終聲或極少數終聲
+        return finalIndex === 0 || finalIndex === 1 || finalIndex === 4 || finalIndex === 21;
+        // 允許: 無, ㄱ, ㄴ, ㅇ
+      }
+      
+      // 檢查複合終聲 - 大部分複合終聲在現代韓文中很少使用
+      const complexFinals = [2, 3, 5, 6, 9, 10, 11, 12, 13, 14, 15, 18, 20];
+      // ㄲ, ㄳ, ㄵ, ㄶ, ㄺ, ㄻ, ㄼ, ㄽ, ㄾ, ㄿ, ㅀ, ㅄ, ㅆ
+      
+      if (complexFinals.includes(finalIndex)) {
+        // 只有某些初聲+中聲組合會使用複合終聲
+        // 簡化判斷:大部分複合終聲只與基本母音 ㅏ, ㅓ, ㅗ, ㅜ, ㅡ, ㅣ 組合
+        const basicVowels = ['ㅏ', 'ㅓ', 'ㅗ', 'ㅜ', 'ㅡ', 'ㅣ'];
+        
+        if (!basicVowels.includes(vowel.symbol)) {
+          return false;
+        }
+        
+        // 進一步限制:只有部分複合終聲較常用
+        const moreCommonComplexFinals = [2, 20]; // ㄲ, ㅆ
+        if (!moreCommonComplexFinals.includes(finalIndex)) {
+          // 其他複合終聲只在特定情況下使用
+          // 為了簡化,我們認為它們較少使用
+          return finalIndex === 9 || finalIndex === 11; // ㄺ, ㄼ 稍微常見
+        }
+      }
+      
+      return true;
+    }
+
+    // 獲取特定初聲+中聲組合下,所有可用的終聲
+    function getAvailableFinals(consonant, vowel) {
+      if (!consonant || !vowel) return finals;
+      
+      const availableFinals = [];
+      
+      finals.forEach(final => {
+        if (isCommonHangulSyllable(consonant, vowel, final)) {
+          availableFinals.push(final);
+        }
+      });
+      
+      return availableFinals;
+    }
+
+    // 獲取特定初聲下,所有可用的中聲
+    function getAvailableVowels(consonant) {
+      if (!consonant) return vowels;
+      
+      // 所有母音都可以與所有子音組合
+      // (在基本組合層面,沒有限制)
+      return vowels;
+    }
+
+    // ====== 狀態管理 ======
+    let selectedConsonant = null;
+    let selectedVowel = null;
+    let selectedFinal = null;
+
+    // ====== TTS處理 ======
+    let koreanVoice = null;
+    const statusEl = document.getElementById("voiceStatus");
+    const toastEl = document.getElementById("toast");
+    const toastMsgEl = document.getElementById("toastMsg");
+
+    function showToast(msg, duration = 2600) {
+      toastMsgEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(() => {
+        toastEl.classList.remove("show");
+      }, duration);
+    }
+
+    function updateStatus(text, ok = true) {
+      const spans = statusEl.querySelectorAll("span");
+      // 第一個span是"語音:"，第二個span.strong是狀態文字
+      if (spans.length >= 2) {
+        spans[1].textContent = text;
+      }
+      const dot = statusEl.querySelector(".status-dot");
+      if (ok) {
+        dot.style.background = "#30d158";
+        dot.style.boxShadow = "0 0 10px rgba(48,209,88,0.7)";
+      } else {
+        dot.style.background = "#ff453a";
+        dot.style.boxShadow = "0 0 10px rgba(255,69,58,0.7)";
+      }
+    }
+
+    function initVoices() {
+      const voices = window.speechSynthesis.getVoices();
+      
+      // 如果語音列表還沒載入完成，等待下次事件
+      if (!voices || voices.length === 0) {
+        return;
+      }
+
+      koreanVoice =
+        voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("ko")) ||
+        voices.find((v) => v.lang && v.lang.toLowerCase().includes("ko")) ||
+        null;
+
+      if (koreanVoice) {
+        updateStatus(`${koreanVoice.name}`, true);
+      } else {
+        updateStatus("無韓文語音,使用預設", false);
+      }
+    }
+
+    if ("speechSynthesis" in window) {
+      // 先嘗試初始化一次
+      initVoices();
+      
+      // 設置語音變更監聽器
+      window.speechSynthesis.onvoiceschanged = initVoices;
+      
+      // 如果1秒後還沒載入，顯示錯誤訊息
+      setTimeout(() => {
+        if (!koreanVoice) {
+          const voices = window.speechSynthesis.getVoices();
+          if (voices && voices.length > 0) {
+            updateStatus("無韓文語音,使用預設", false);
+          } else {
+            updateStatus("語音未載入", false);
+          }
+        }
+      }, 1000);
+    } else {
+      updateStatus("不支持語音合成", false);
+      showToast("此瀏覽器不支持 Speech Synthesis,發音功能可能無法使用。");
+    }
+
+    function speakKorean(text) {
+      if (!("speechSynthesis" in window)) {
+        showToast("此瀏覽器不支持語音合成。");
+        return;
+      }
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "ko-KR";
+      if (koreanVoice) {
+        utter.voice = koreanVoice;
+      }
+      utter.rate = 0.9;
+      utter.pitch = 1.0;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }
+
+    // ====== 畫面渲染 ======
+    function createVowelCard(vowel) {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "letter-card";
+      card.setAttribute("data-symbol", vowel.symbol);
+
+      // 檢查這個母音是否可用
+      const isAvailable = !selectedConsonant || 
+        vowels.some(v => v === vowel && getAvailableVowels(selectedConsonant).includes(vowel));
+
+      if (!isAvailable) {
+        card.classList.add("disabled");
+      }
+
+      const symbolEl = document.createElement("div");
+      symbolEl.className = "letter-symbol";
+      symbolEl.textContent = vowel.display || vowel.symbol;
+
+      // 如果有選擇子音,顯示組合後的字
+      if (selectedConsonant && isAvailable) {
+        const combinedEl = document.createElement("div");
+        combinedEl.className = "letter-combined";
+        const combined = composeHangul(selectedConsonant, vowel, selectedFinal);
+        combinedEl.textContent = combined;
+        card.appendChild(combinedEl);
+      }
+
+      const metaEl = document.createElement("div");
+      metaEl.className = "letter-meta";
+
+      if (vowel.roman) {
+        const roman = document.createElement("span");
+        roman.className = "roman";
+        roman.textContent = vowel.roman;
+        metaEl.appendChild(roman);
+      }
+
+      if (vowel.group) {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = vowel.group;
+        metaEl.appendChild(tag);
+      }
+
+      card.appendChild(symbolEl);
+      card.appendChild(metaEl);
+
+      if (isAvailable) {
+        card.addEventListener("click", () => {
+          // 切換選擇狀態
+          if (selectedVowel === vowel) {
+            selectedVowel = null;
+            card.classList.remove("active");
+            showToast("已解除母音鎖定");
+          } else {
+            // 移除之前的選擇
+            document.querySelectorAll("#vowelGrid .letter-card").forEach(c => {
+              c.classList.remove("active");
+            });
+            
+            selectedVowel = vowel;
+            card.classList.add("active");
+            
+            if (selectedConsonant) {
+              const combined = composeHangul(selectedConsonant, vowel, selectedFinal);
+              showToast(`已鎖定母音: ${vowel.symbol} → ${combined}`);
+              speakKorean(combined);
+            } else {
+              showToast(`已鎖定母音: ${vowel.symbol} (${vowel.speak})`);
+              speakKorean(vowel.speak);
+            }
+          }
+          
+          updateFinalGrid();
+          updateVowelSubtitle();
+        });
+      }
+
+      return card;
+    }
+
+    function createConsonantCard(consonant) {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "letter-card";
+      card.setAttribute("data-symbol", consonant.symbol);
+
+      const symbolEl = document.createElement("div");
+      symbolEl.className = "letter-symbol";
+      symbolEl.textContent = consonant.symbol;
+
+      const metaEl = document.createElement("div");
+      metaEl.className = "letter-meta";
+
+      if (consonant.roman) {
+        const roman = document.createElement("span");
+        roman.className = "roman";
+        roman.textContent = consonant.roman;
+        metaEl.appendChild(roman);
+      }
+
+      if (consonant.type) {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = consonant.type;
+        metaEl.appendChild(tag);
+      }
+
+      card.appendChild(symbolEl);
+      card.appendChild(metaEl);
+
+      card.addEventListener("click", () => {
+        // 切換選擇狀態
+        if (selectedConsonant === consonant) {
+          selectedConsonant = null;
+          card.classList.remove("active");
+          showToast("已解除子音鎖定");
+        } else {
+          // 移除之前的選擇
+          document.querySelectorAll("#consonantGrid .letter-card").forEach(c => {
+            c.classList.remove("active");
+          });
+          
+          selectedConsonant = consonant;
+          card.classList.add("active");
+          showToast(`已鎖定子音: ${consonant.symbol} (${consonant.speak})`);
+          speakKorean(consonant.speak);
+        }
+        
+        updateVowelGrid();
+        updateConsonantSubtitle();
+      });
+
+      return card;
+    }
+
+    function createFinalCard(final) {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "letter-card";
+      card.setAttribute("data-symbol", final.symbol);
+
+      // 檢查這個終聲是否可用
+      const isAvailable = !selectedConsonant || !selectedVowel || 
+        isCommonHangulSyllable(selectedConsonant, selectedVowel, final);
+
+      if (!isAvailable) {
+        card.classList.add("disabled");
+      }
+
+      const symbolEl = document.createElement("div");
+      symbolEl.className = "letter-symbol";
+      symbolEl.textContent = final.display || final.symbol;
+
+      // 如果有選擇子音和母音,顯示完整組合
+      if (selectedConsonant && selectedVowel && isAvailable) {
+        const combinedEl = document.createElement("div");
+        combinedEl.className = "letter-combined";
+        const combined = composeHangul(selectedConsonant, selectedVowel, final);
+        combinedEl.textContent = combined;
+        card.appendChild(combinedEl);
+      }
+
+      const metaEl = document.createElement("div");
+      metaEl.className = "letter-meta";
+
+      if (final.roman) {
+        const roman = document.createElement("span");
+        roman.className = "roman";
+        roman.textContent = final.roman;
+        metaEl.appendChild(roman);
+      }
+
+      if (final.type) {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = final.type;
+        metaEl.appendChild(tag);
+      }
+
+      card.appendChild(symbolEl);
+      card.appendChild(metaEl);
+
+      if (isAvailable) {
+        card.addEventListener("click", () => {
+          // 切換選擇狀態
+          if (selectedFinal === final) {
+            selectedFinal = null;
+            card.classList.remove("active");
+            showToast("已解除終聲鎖定");
+          } else {
+            // 移除之前的選擇
+            document.querySelectorAll("#finalGrid .letter-card").forEach(c => {
+              c.classList.remove("active");
+            });
+            
+            selectedFinal = final;
+            card.classList.add("active");
+            
+            if (selectedConsonant && selectedVowel) {
+              const combined = composeHangul(selectedConsonant, selectedVowel, final);
+              if (final.finalIndex === 0) {
+                showToast(`已選擇:無終聲 → ${combined}`);
+              } else {
+                showToast(`已鎖定終聲: ${final.symbol} → ${combined}`);
+              }
+              speakKorean(combined);
+            } else {
+              if (final.finalIndex === 0) {
+                showToast("已選擇:無終聲");
+              } else {
+                showToast(`已鎖定終聲: ${final.symbol}`);
+              }
+            }
+          }
+          
+          updateVowelGrid();
+          updateFinalSubtitle();
+        });
+      }
+
+      return card;
+    }
+
+    function renderConsonantGrid() {
+      const consonantGrid = document.getElementById("consonantGrid");
+      consonantGrid.innerHTML = "";
+
+      consonants.forEach((c) => {
+        consonantGrid.appendChild(createConsonantCard(c));
+      });
+    }
+
+    function updateConsonantSubtitle() {
+      const subtitle = document.getElementById("consonantSubtitle");
+      
+      if (selectedConsonant) {
+        subtitle.textContent = `已鎖定初聲「${selectedConsonant.symbol}」,請往下選擇中聲母音`;
+      } else {
+        subtitle.textContent = "請選擇一個子音作為開頭";
+      }
+    }
+
+    function renderVowelGrid() {
+      const vowelGrid = document.getElementById("vowelGrid");
+      vowelGrid.innerHTML = "";
+
+      vowels.forEach((v) => {
+        vowelGrid.appendChild(createVowelCard(v));
+      });
+    }
+
+    function updateVowelGrid() {
+      renderVowelGrid();
+      updateVowelSubtitle();
+    }
+
+    function updateVowelSubtitle() {
+      const subtitle = document.getElementById("vowelSubtitle");
+      
+      if (selectedConsonant) {
+        if (selectedVowel) {
+          const combined = composeHangul(selectedConsonant, selectedVowel, selectedFinal);
+          if (selectedFinal) {
+            if (selectedFinal.finalIndex === 0) {
+              subtitle.textContent = `已組合:${selectedConsonant.symbol} + ${selectedVowel.symbol} = ${combined} (無終聲)`;
+            } else {
+              subtitle.textContent = `已組合:${selectedConsonant.symbol} + ${selectedVowel.symbol} + ${selectedFinal.symbol} = ${combined}`;
+            }
+          } else {
+            subtitle.textContent = `已組合:${selectedConsonant.symbol} + ${selectedVowel.symbol} = ${combined}`;
+          }
+        } else {
+          subtitle.textContent = `已選初聲「${selectedConsonant.symbol}」,請選擇母音進行組合`;
+        }
+      } else {
+        subtitle.textContent = "請先選擇初聲子音";
+      }
+    }
+
+    function renderFinalGrid() {
+      const finalGrid = document.getElementById("finalGrid");
+      finalGrid.innerHTML = "";
+
+      finals.forEach((f) => {
+        finalGrid.appendChild(createFinalCard(f));
+      });
+    }
+
+    function updateFinalGrid() {
+      renderFinalGrid();
+      updateFinalSubtitle();
+    }
+
+    function updateFinalSubtitle() {
+      const subtitle = document.getElementById("finalSubtitle");
+      
+      if (selectedConsonant && selectedVowel) {
+        if (selectedFinal) {
+          const combined = composeHangul(selectedConsonant, selectedVowel, selectedFinal);
+          if (selectedFinal.finalIndex === 0) {
+            subtitle.textContent = `完整音節:${combined} (無終聲)`;
+          } else {
+            subtitle.textContent = `完整音節:${combined} = ${selectedConsonant.symbol} + ${selectedVowel.symbol} + ${selectedFinal.symbol}`;
+          }
+        } else {
+          subtitle.textContent = "選擇終聲完成三層組合,或選「×」表示無終聲";
+        }
+      } else if (selectedConsonant) {
+        subtitle.textContent = "請先選擇中聲母音";
+      } else {
+        subtitle.textContent = "請先選擇初聲和中聲";
+      }
+    }
+
+    // 初始渲染
+    renderConsonantGrid();
+    updateConsonantSubtitle();
+    renderVowelGrid();
+    updateVowelSubtitle();
+    renderFinalGrid();
+    updateFinalSubtitle();
+
+    // 清除子音鎖定按鈕
+    document.getElementById("clearConsonantBtn").addEventListener("click", () => {
+      selectedConsonant = null;
+      document.querySelectorAll("#consonantGrid .letter-card").forEach(c => {
+        c.classList.remove("active");
+      });
+      updateConsonantSubtitle();
+      updateVowelSubtitle();
+      updateFinalSubtitle();
+      showToast("已清除子音鎖定");
+    });
+
+    // 測試 Voice 按鈕
+    document.getElementById("testVoiceBtn").addEventListener("click", () => {
+      const seq = "가나다라마바사아자차카타파하";
+      speakKorean(seq);
+      showToast("播放測試句:가나다라마바사아자차카타파하");
+    });
+
+    // 清除母音鎖定按鈕
+    document.getElementById("clearVowelBtn").addEventListener("click", () => {
+      selectedVowel = null;
+      document.querySelectorAll("#vowelGrid .letter-card").forEach(c => {
+        c.classList.remove("active");
+      });
+      updateVowelSubtitle();
+      updateFinalSubtitle();
+      showToast("已清除母音鎖定");
+    });
+
+    // 清除終聲鎖定按鈕
+    document.getElementById("clearFinalBtn").addEventListener("click", () => {
+      selectedFinal = null;
+      document.querySelectorAll("#finalGrid .letter-card").forEach(c => {
+        c.classList.remove("active");
+      });
+      updateVowelGrid();
+      updateFinalSubtitle();
+      showToast("已清除終聲鎖定");
+    });
+
+    // 全部重置按鈕
+    document.getElementById("clearAllBtn").addEventListener("click", () => {
+      selectedConsonant = null;
+      selectedVowel = null;
+      selectedFinal = null;
+      document.querySelectorAll(".letter-card").forEach(c => {
+        c.classList.remove("active");
+      });
+      updateConsonantSubtitle();
+      updateVowelSubtitle();
+      updateFinalSubtitle();
+      showToast("已重置所有選擇");
+    });
+  </script>
+</body>
+</html>
