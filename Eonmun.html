@@ -1020,13 +1020,6 @@
         metaEl.appendChild(roman);
       }
 
-      if (vowel.group) {
-        const tag = document.createElement("span");
-        tag.className = "tag";
-        tag.textContent = vowel.group;
-        metaEl.appendChild(tag);
-      }
-
       card.appendChild(symbolEl);
       card.appendChild(metaEl);
 
@@ -1082,13 +1075,6 @@
         roman.className = "roman";
         roman.textContent = consonant.roman;
         metaEl.appendChild(roman);
-      }
-
-      if (consonant.type) {
-        const tag = document.createElement("span");
-        tag.className = "tag";
-        tag.textContent = consonant.type;
-        metaEl.appendChild(tag);
       }
 
       card.appendChild(symbolEl);
@@ -1154,13 +1140,6 @@
         roman.className = "roman";
         roman.textContent = final.roman;
         metaEl.appendChild(roman);
-      }
-
-      if (final.type) {
-        const tag = document.createElement("span");
-        tag.className = "tag";
-        tag.textContent = final.type;
-        metaEl.appendChild(tag);
       }
 
       card.appendChild(symbolEl);
