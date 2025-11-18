@@ -984,8 +984,6 @@
         metaEl.appendChild(roman);
       }
 
-    }
-
       card.appendChild(symbolEl);
       card.appendChild(metaEl);
 
@@ -1001,22 +999,16 @@
             document.querySelectorAll("#vowelGrid .letter-card").forEach(c => {
               c.classList.remove("active");
             });
-            
+
             selectedVowel = vowel;
             card.classList.add("active");
-            
+            showToast(`已鎖定母音: ${vowel.display || vowel.symbol} (${vowel.speak})`);
             if (selectedConsonant) {
-              const combined = composeHangul(selectedConsonant, vowel, selectedFinal);
-              showToast(`已鎖定母音: ${vowel.symbol} → ${combined}`);
-              speakKorean(combined);
-            } else {
-              showToast(`已鎖定母音: ${vowel.symbol} (${vowel.speak})`);
-              speakKorean(vowel.speak);
+              speakKorean(composeHangul(selectedConsonant, vowel, selectedFinal));
             }
           }
-          
-          updateFinalGrid();
           updateVowelSubtitle();
+          updateFinalSubtitle();
         });
       }
 
@@ -1043,8 +1035,6 @@
         metaEl.appendChild(roman);
       }
 
-    }
-
       card.appendChild(symbolEl);
       card.appendChild(metaEl);
 
@@ -1063,11 +1053,19 @@
           selectedConsonant = consonant;
           card.classList.add("active");
           showToast(`已鎖定子音: ${consonant.symbol} (${consonant.speak})`);
-          speakKorean(consonant.speak);
+          speakKorean(composeHangul(consonant, vowels[0], null)); // 用첫母音測試發音
         }
-        
-        updateVowelGrid();
-        updateConsonantSubtitle();
+        updateVowelSubtitle();
+        updateFinalSubtitle();
+      });
+
+      card.addEventListener("mouseenter", () => {
+        const preview = composeHangul(consonant, vowels[0], null);
+        card.setAttribute("data-preview", preview);
+      });
+
+      card.addEventListener("mouseleave", () => {
+        card.removeAttribute("data-preview");
       });
 
       return card;
@@ -1110,8 +1108,6 @@
         metaEl.appendChild(roman);
       }
 
-    }
-
       card.appendChild(symbolEl);
       card.appendChild(metaEl);
 
@@ -1127,28 +1123,14 @@
             document.querySelectorAll("#finalGrid .letter-card").forEach(c => {
               c.classList.remove("active");
             });
-            
+
             selectedFinal = final;
             card.classList.add("active");
-            
+            showToast(`已鎖定終聲: ${final.display || final.symbol} (${final.speak})`);
             if (selectedConsonant && selectedVowel) {
-              const combined = composeHangul(selectedConsonant, selectedVowel, final);
-              if (final.finalIndex === 0) {
-                showToast(`已選擇:無終聲 → ${combined}`);
-              } else {
-                showToast(`已鎖定終聲: ${final.symbol} → ${combined}`);
-              }
-              speakKorean(combined);
-            } else {
-              if (final.finalIndex === 0) {
-                showToast("已選擇:無終聲");
-              } else {
-                showToast(`已鎖定終聲: ${final.symbol}`);
-              }
+              speakKorean(composeHangul(selectedConsonant, selectedVowel, final));
             }
           }
-          
-          updateVowelGrid();
           updateFinalSubtitle();
         });
       }
