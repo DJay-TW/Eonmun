@@ -118,6 +118,27 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 820px) {
+      .header-controls {
+        gap: 6px;
+      }
+      
+      .status-pill {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+      }
+      
+      .status-pill span:not(.strong) {
+        display: none; /* 手機端只顯示 TTS */
+      }
+      
+      .status-dot {
+        width: 6px;
+        height: 6px;
+      }
     }
 
     .theme-toggle {
@@ -1011,20 +1032,12 @@
       card.className = "letter-card";
       card.setAttribute("data-symbol", vowel.symbol);
 
-      // 檢查這個母音是否可用（過濾罕見組合）
-      let isAvailable = true;
-      if (selectedConsonant) {
-        // 如果有選擇子音，需要檢查組合是否常用
-        const finalToCheck = selectedFinal || { finalIndex: 0 }; // 沒有終聲就用無終聲(0)
-        isAvailable = isCommonHangulSyllable(selectedConsonant, vowel, finalToCheck);
-      }
-
-      if (!isAvailable) {
-        card.classList.add("disabled");
-      }
+      // 母音層面不做過濾 - 所有初聲+母音組合都是有效的
+      // 罕見組合的過濾只在終聲層面進行
+      const isAvailable = true;
 
       // 如果有選擇子音,顯示組合結果
-      if (selectedConsonant && isAvailable) {
+      if (selectedConsonant) {
         const combinedEl = document.createElement("div");
         combinedEl.className = "letter-combined";
         const combined = composeHangul(selectedConsonant, vowel, selectedFinal);
@@ -1140,13 +1153,7 @@
           selectedConsonant = consonant;
           card.classList.add("active");
           showToast(`已鎖定: ${consonant.symbol}`);
-          
-          // 播放子音與基本母音 ㅏ 的組合音節
-          const basicVowel = vowels.find(v => v.symbol === 'ㅏ');
-          if (basicVowel) {
-            const syllable = composeHangul(consonant, basicVowel);
-            speakKorean(syllable);
-          }
+          speakKorean(consonant.speak);
         }
         
         updateVowelGrid();
@@ -1162,9 +1169,12 @@
       card.className = "letter-card";
       card.setAttribute("data-symbol", final.symbol);
 
-      // 檢查這個終聲是否可用
-      const isAvailable = !selectedConsonant || !selectedVowel || 
-        isCommonHangulSyllable(selectedConsonant, selectedVowel, final);
+      // 檢查這個終聲是否可用（過濾罕見組合）
+      // 只有在選了子音和母音時，終聲才可選，並且要是常用組合
+      let isAvailable = false;
+      if (selectedConsonant && selectedVowel) {
+        isAvailable = isCommonHangulSyllable(selectedConsonant, selectedVowel, final);
+      }
 
       if (!isAvailable) {
         card.classList.add("disabled");
