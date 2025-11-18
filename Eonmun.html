@@ -225,6 +225,91 @@
       }
     }
 
+    /* 強制手機版模式 */
+    body.force-mobile {
+      padding: 12px 8px 20px;
+    }
+    
+    body.force-mobile .app-shell {
+      border-radius: 20px;
+      padding: 16px 12px;
+    }
+    
+    body.force-mobile .panels-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    
+    body.force-mobile h1 {
+      font-size: 1.3rem;
+    }
+    
+    body.force-mobile .subtitle {
+      font-size: 0.8rem;
+    }
+    
+    body.force-mobile header {
+      margin-bottom: 16px;
+    }
+    
+    body.force-mobile main {
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    body.force-mobile .letters-grid {
+      grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    body.force-mobile .letter-card {
+      padding: 8px 6px;
+      gap: 4px;
+      min-height: 62px;
+      border-radius: 10px;
+    }
+
+    body.force-mobile .letter-symbol {
+      font-size: 1.6rem;
+    }
+
+    body.force-mobile .letter-combined {
+      font-size: 1.15rem;
+      margin-top: -3px;
+    }
+
+    body.force-mobile .roman {
+      font-size: 0.65rem;
+    }
+
+    body.force-mobile .tag {
+      display: none;
+    }
+
+    body.force-mobile .action-row {
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    body.force-mobile .btn {
+      padding: 9px 12px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      gap: 5px;
+    }
+
+    body.force-mobile .icon {
+      font-size: 0.9rem;
+    }
+
+    body.force-mobile #toast {
+      bottom: 20px;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      border-radius: 10px;
+    }
+
     .panel {
       background: var(--panel-gradient), var(--bg-soft);
       border-radius: 20px;
@@ -549,6 +634,7 @@
           <span class="status-dot"></span>
           <span><span class="strong">TTS</span> 已啟用</span>
         </div>
+        <button class="theme-toggle" id="viewToggle" aria-label="切換版本" title="切換手機版/桌面版">📱</button>
         <button class="theme-toggle" id="themeToggle" aria-label="切換主題">🌙</button>
       </div>
     </header>
@@ -631,9 +717,9 @@
     const themeToggle = document.getElementById("themeToggle");
     const root = document.documentElement;
 
-    let isDark = true;
-    themeToggle.addEventListener("click", () => {
-      isDark = !isDark;
+    let isDark = localStorage.getItem('theme') !== 'light';
+    
+    function updateTheme() {
       if (isDark) {
         root.removeAttribute("data-theme");
         themeToggle.textContent = "🌙";
@@ -641,6 +727,39 @@
         root.setAttribute("data-theme", "light");
         themeToggle.textContent = "☀️";
       }
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+    
+    updateTheme();
+    
+    themeToggle.addEventListener("click", () => {
+      isDark = !isDark;
+      updateTheme();
+    });
+
+    // 版本切換（手機版/桌面版）
+    const viewToggle = document.getElementById("viewToggle");
+    let isMobileView = localStorage.getItem('viewMode') === 'mobile';
+    
+    function updateViewMode() {
+      if (isMobileView) {
+        document.body.classList.add('force-mobile');
+        viewToggle.textContent = "📱";
+        viewToggle.title = "切換至桌面版";
+      } else {
+        document.body.classList.remove('force-mobile');
+        viewToggle.textContent = "💻";
+        viewToggle.title = "切換至手機版";
+      }
+      localStorage.setItem('viewMode', isMobileView ? 'mobile' : 'desktop');
+    }
+    
+    updateViewMode();
+    
+    viewToggle.addEventListener("click", () => {
+      isMobileView = !isMobileView;
+      updateViewMode();
+      showToast(isMobileView ? "已切換至手機版" : "已切換至桌面版");
     });
 
     // Toast 通知
@@ -654,21 +773,99 @@
     }
 
     // TTS 語音合成
+    let voicesLoaded = false;
+    let koreanVoice = null;
+
+    // 加載語音列表
+    function loadVoices() {
+      return new Promise((resolve) => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          voicesLoaded = true;
+          // 尋找韓文語音
+          koreanVoice = voices.find(voice => voice.lang.startsWith('ko')) || null;
+          resolve(voices);
+        } else {
+          // 某些瀏覽器需要等待 voiceschanged 事件
+          window.speechSynthesis.onvoiceschanged = () => {
+            const voices = window.speechSynthesis.getVoices();
+            voicesLoaded = true;
+            koreanVoice = voices.find(voice => voice.lang.startsWith('ko')) || null;
+            resolve(voices);
+          };
+        }
+      });
+    }
+
     function speakKorean(text) {
       if (!('speechSynthesis' in window)) {
-        console.warn("瀏覽器不支援 Web Speech API");
+        showToast("⚠️ 瀏覽器不支援語音");
         return;
       }
 
+      // 取消之前的語音
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "ko-KR";
-      utterance.rate = 0.8;
+      utterance.rate = 0.85;
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
 
-      window.speechSynthesis.speak(utterance);
+      // 如果找到韓文語音，使用它
+      if (koreanVoice) {
+        utterance.voice = koreanVoice;
+      }
+
+      // 錯誤處理
+      utterance.onerror = (event) => {
+        console.error('語音播放錯誤:', event);
+        if (event.error === 'not-allowed') {
+          showToast("⚠️ 請允許網頁使用語音");
+        } else if (event.error === 'network') {
+          showToast("⚠️ 網路錯誤，無法播放");
+        } else {
+          showToast("⚠️ 語音播放失敗");
+        }
+      };
+
+      // 成功播放的回調（可選）
+      utterance.onend = () => {
+        console.log('語音播放完成');
+      };
+
+      try {
+        window.speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.error('語音播放異常:', error);
+        showToast("⚠️ 語音功能異常");
+      }
+    }
+
+    // 初始化時加載語音
+    if ('speechSynthesis' in window) {
+      loadVoices().then(() => {
+        console.log('語音引擎已加載');
+        if (koreanVoice) {
+          console.log('找到韓文語音:', koreanVoice.name);
+          updateTTSStatus(true);
+        } else {
+          console.warn('未找到韓文語音，將使用預設語音');
+          updateTTSStatus(false);
+        }
+      });
+    } else {
+      updateTTSStatus(false);
+    }
+
+    // 更新 TTS 狀態顯示
+    function updateTTSStatus(available) {
+      const statusPill = document.querySelector('.status-pill span:last-child');
+      if (available) {
+        statusPill.innerHTML = '<span class="strong">TTS</span> 已啟用';
+      } else {
+        statusPill.innerHTML = '<span class="strong">TTS</span> 受限';
+      }
     }
 
     // 韓文字母資料
@@ -814,9 +1011,13 @@
       card.className = "letter-card";
       card.setAttribute("data-symbol", vowel.symbol);
 
-      // 檢查這個母音是否可用
-      const isAvailable = !selectedConsonant || 
-        (selectedFinal ? isCommonHangulSyllable(selectedConsonant, vowel, selectedFinal) : true);
+      // 檢查這個母音是否可用（過濾罕見組合）
+      let isAvailable = true;
+      if (selectedConsonant) {
+        // 如果有選擇子音，需要檢查組合是否常用
+        const finalToCheck = selectedFinal || { finalIndex: 0 }; // 沒有終聲就用無終聲(0)
+        isAvailable = isCommonHangulSyllable(selectedConsonant, vowel, finalToCheck);
+      }
 
       if (!isAvailable) {
         card.classList.add("disabled");
@@ -854,6 +1055,11 @@
 
       card.appendChild(symbolEl);
       card.appendChild(metaEl);
+
+      // 如果這是當前選中的母音，添加 active 類
+      if (selectedVowel === vowel) {
+        card.classList.add("active");
+      }
 
       if (isAvailable) {
         card.addEventListener("click", () => {
@@ -934,7 +1140,13 @@
           selectedConsonant = consonant;
           card.classList.add("active");
           showToast(`已鎖定: ${consonant.symbol}`);
-          speakKorean(consonant.speak);
+          
+          // 播放子音與基本母音 ㅏ 的組合音節
+          const basicVowel = vowels.find(v => v.symbol === 'ㅏ');
+          if (basicVowel) {
+            const syllable = composeHangul(consonant, basicVowel);
+            speakKorean(syllable);
+          }
         }
         
         updateVowelGrid();
@@ -990,6 +1202,11 @@
 
       card.appendChild(symbolEl);
       card.appendChild(metaEl);
+
+      // 如果這是當前選中的終聲，添加 active 類
+      if (selectedFinal === final) {
+        card.classList.add("active");
+      }
 
       if (isAvailable) {
         card.addEventListener("click", () => {
