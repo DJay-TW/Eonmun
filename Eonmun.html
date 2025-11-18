@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>Hangul 字母練習器 - 常用音節版</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
+<meta charset="utf-8"/>
+<title>Hangul 字母練習器 - 常用音節版</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
     :root {
       --bg: #05070a;
       --bg-soft: #10131a;
@@ -199,17 +200,17 @@
       .app-shell {
         max-width: 100%;
         border-radius: 24px;
-        padding: 20px 14px 24px;
+        padding: 16px 10px 20px;
       }
 
       header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
+        gap: 10px;
       }
 
       h1 {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
       }
 
       .header-controls {
@@ -219,36 +220,46 @@
 
       .panels-row {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 12px;
       }
 
       .panel {
-        padding: 16px 14px 18px;
+        padding: 14px 10px 14px;
+      }
+
+      .panel-header {
+        margin-bottom: 10px;
       }
 
       .letters-grid {
-        grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
-        gap: 10px;
-        margin-top: 14px;
+        grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+        gap: 6px;
+        margin-top: 10px;
       }
 
       .letter-card {
-        padding: 14px 10px;
+        padding: 10px 6px;
       }
 
       .letter-symbol {
-        font-size: 2.3rem;
+        font-size: 2.1rem;
+      }
+
+      .card-meta {
+        font-size: 0.7rem;
+        margin-top: 2px;
       }
 
       .controls-row {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
+        margin-top: 10px;
       }
 
       .control-button {
         min-width: 0;
         width: 100%;
-        padding: 14px 16px;
+        padding: 12px 14px;
       }
     }
 
@@ -529,138 +540,109 @@
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <header>
-      <div class="title-block">
-        <h1>
-          <div class="logo-icon">한</div>
+<div class="app-shell">
+<header>
+<div class="title-block">
+<h1>
+<div class="logo-icon">한</div>
           Hangul 字母練習器
         </h1>
-        <div class="subtitle">過濾罕見組合,只顯示現代韓文常用的音節</div>
-      </div>
+<div class="subtitle">過濾罕見組合,只顯示現代韓文常用的音節</div>
+</div>
+<div class="header-controls">
+<div class="status-pill" id="voiceStatus">
+<div class="status-dot"></div>
+<span>語音:</span>
+<span class="strong">載入中…</span>
+</div>
+<button aria-label="切換主題" class="theme-toggle" id="themeToggle" type="button">
+<span id="themeIcon">☀️</span>
+</button>
+</div>
+</header>
+<main>
+<!-- 第一步:選擇初聲(子音) -->
+<section aria-label="Hangul initial consonants" class="panel">
+<div class="panel-header">
+<div class="panel-title-group">
+<div class="panel-title">① 初聲 Initial Consonants (자음)</div>
+<div class="panel-subtitle">
+<span id="consonantSubtitle">請選擇一個子音作為開頭</span>
+</div>
+</div>
 
-      <div class="header-controls">
-        <div class="status-pill" id="voiceStatus">
-          <div class="status-dot"></div>
-          <span>語音:</span>
-          <span class="strong">載入中…</span>
-        </div>
+</div>
+<div class="letters-grid" id="consonantGrid">
+<!-- 動態插入 -->
+</div>
 
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換主題">
-          <span id="themeIcon">☀️</span>
-        </button>
-      </div>
-    </header>
-
-    <main>
-      <!-- 第一步:選擇初聲(子音) -->
-      <section class="panel" aria-label="Hangul initial consonants">
-        <div class="panel-header">
-          <div class="panel-title-group">
-            <div class="panel-title">① 初聲 Initial Consonants (자음)</div>
-            <div class="panel-subtitle">
-              <span id="consonantSubtitle">請選擇一個子音作為開頭</span>
-            </div>
-          </div>
-          <div class="panel-badge">ㄱ · ㄴ · ㄷ…</div>
-        </div>
-
-        <div class="letters-grid" id="consonantGrid">
-          <!-- 動態插入 -->
-        </div>
-
-        <div class="hint">
-          <div class="hint-icon">✍️</div>
-          <span><strong>步驟1:</strong> 韓文書寫從子音開始!點擊任一子音卡片鎖定,然後往下選擇母音。</span>
-        </div>
-
-        <div class="controls-row">
-          <button class="control-button" id="clearConsonantBtn" type="button">
-            <span class="icon">🔄</span>
+<div class="controls-row">
+<button class="control-button" id="clearConsonantBtn" type="button">
+<span class="icon">🔄</span>
             清除子音鎖定
           </button>
-          <button class="control-button" id="testVoiceBtn" type="button">
-            <span class="icon">🔊</span>
+<button class="control-button" id="testVoiceBtn" type="button">
+<span class="icon">🔊</span>
             測試發音「가나다…」
           </button>
-        </div>
-      </section>
+</div>
+</section>
+<!-- 第二步:選擇中聲(母音) -->
+<section aria-label="Hangul vowels" class="panel">
+<div class="panel-header">
+<div class="panel-title-group">
+<div class="panel-title">② 中聲 Vowels (모음)</div>
+<div class="panel-subtitle">
+<span id="vowelSubtitle">請先選擇初聲子音</span>
+</div>
+</div>
 
-      <!-- 第二步:選擇中聲(母音) -->
-      <section class="panel" aria-label="Hangul vowels">
-        <div class="panel-header">
-          <div class="panel-title-group">
-            <div class="panel-title">② 中聲 Vowels (모음)</div>
-            <div class="panel-subtitle">
-              <span id="vowelSubtitle">請先選擇初聲子音</span>
-            </div>
-          </div>
-          <div class="panel-badge">ㅏ · ㅓ · ㅗ…</div>
-        </div>
+</div>
+<div class="letters-grid" id="vowelGrid">
+<!-- 動態插入 -->
+</div>
 
-        <div class="letters-grid" id="vowelGrid">
-          <!-- 動態插入 -->
-        </div>
-
-        <div class="hint">
-          <div class="hint-icon">💡</div>
-          <span><strong>步驟2:</strong> 灰色的母音表示與所選子音無法組合成真實韓文音節。只顯示可用的組合。</span>
-        </div>
-
-        <div class="controls-row">
-          <button class="control-button" id="clearVowelBtn" type="button">
-            <span class="icon">🔄</span>
+<div class="controls-row">
+<button class="control-button" id="clearVowelBtn" type="button">
+<span class="icon">🔄</span>
             清除母音鎖定
           </button>
-        </div>
-      </section>
+</div>
+</section>
+<!-- 第三步:選擇終聲 -->
+<section aria-label="Hangul final consonants" class="panel">
+<div class="panel-header">
+<div class="panel-title-group">
+<div class="panel-title">③ 終聲 Final Consonants (받침)</div>
+<div class="panel-subtitle">
+<span id="finalSubtitle">請先選擇初聲和中聲</span>
+</div>
+</div>
 
-      <!-- 第三步:選擇終聲 -->
-      <section class="panel" aria-label="Hangul final consonants">
-        <div class="panel-header">
-          <div class="panel-title-group">
-            <div class="panel-title">③ 終聲 Final Consonants (받침)</div>
-            <div class="panel-subtitle">
-              <span id="finalSubtitle">請先選擇初聲和中聲</span>
-            </div>
-          </div>
-          <div class="panel-badge">받침</div>
-        </div>
+</div>
+<div class="letters-grid" id="finalGrid">
+<!-- 動態插入 -->
+</div>
 
-        <div class="letters-grid" id="finalGrid">
-          <!-- 動態插入 -->
-        </div>
-
-        <div class="hint">
-          <div class="hint-icon">🎯</div>
-          <span><strong>步驟3:</strong> 系統過濾掉罕見的複合終聲組合。例如:複母音(ㅢ、ㅚ等)很少搭配複雜終聲。</span>
-        </div>
-
-        <div class="controls-row">
-          <button class="control-button" id="clearFinalBtn" type="button">
-            <span class="icon">🔄</span>
+<div class="controls-row">
+<button class="control-button" id="clearFinalBtn" type="button">
+<span class="icon">🔄</span>
             清除終聲鎖定
           </button>
-          <button class="control-button" id="clearAllBtn" type="button">
-            <span class="icon">✨</span>
+<button class="control-button" id="clearAllBtn" type="button">
+<span class="icon">✨</span>
             全部重置
           </button>
-        </div>
-      </section>
-    </main>
+</div>
+</section>
+</main>
 
-    <footer>
-      <span>提示:建議在 Chrome 使用,並確保有安裝韓文語音(ko-KR)。</span>
-      <span>設計重點:<strong>過濾罕見音節</strong> - 自動隱藏現代韓文中極少使用的複合終聲組合,讓學習更專注於實用內容。</span>
-    </footer>
-  </div>
-
-  <div class="toast" id="toast">
-    <div class="toast-icon">✓</div>
-    <div id="toastMsg">訊息</div>
-  </div>
-
-  <script>
+</div>
+<div class="toast" id="toast">
+<div class="toast-icon">✓</div>
+<div id="toastMsg">訊息</div>
+</div>
+<script>
     // ====== 主題切換 ======
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
