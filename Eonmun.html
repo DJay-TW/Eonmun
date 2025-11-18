@@ -526,7 +526,67 @@
       font-size: 0.9rem;
       font-weight: 500;
     }
-  </style>
+  
+
+    /* Mobile override at end so it actually wins on iPhone */
+    @media (max-width: 820px) {
+      .app-shell {
+        max-width: 100%;
+        padding: 12px 8px 18px;
+      }
+
+      .panels-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .panel {
+        padding: 12px 8px 12px;
+      }
+
+      .panel-header {
+        margin-bottom: 6px;
+      }
+
+      .letters-grid {
+        grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+        gap: 4px;
+        margin-top: 6px;
+      }
+
+      .letter-card {
+        padding: 6px 4px;
+        border-radius: 14px;
+      }
+
+      .letter-symbol {
+        font-size: 1.7rem;
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+
+      .card-meta {
+        font-size: 0.55rem;
+        margin-top: 0;
+      }
+
+      .controls-row {
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .control-button {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border-radius: 12px;
+      }
+
+      h1 {
+        font-size: 1.2rem;
+      }
+    }
+</style>
 </head>
 <body>
 <div class="app-shell">
